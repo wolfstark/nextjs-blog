@@ -4,6 +4,7 @@ import utilStyles from "../styles/utils.module.css";
 import { getSortedPostsData } from "../lib/posts";
 import Link from "next/link";
 import Date from "../components/date";
+import { useEffect } from "react";
 
 export async function getStaticProps() {
   const allPostsData = getSortedPostsData();
@@ -15,6 +16,11 @@ export async function getStaticProps() {
 }
 
 export default function Home({ allPostsData }) {
+  useEffect(() => {
+    fetch("/api/hello")
+      .then((res) => res.json())
+      .then(console.log);
+  }, []);
   return (
     <Layout home>
       <Head>
