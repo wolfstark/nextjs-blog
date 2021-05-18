@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import OrbitDB from "orbit-db";
+import throttle from "lodash/throttle";
 
 let db = null;
 
@@ -7,6 +8,13 @@ export default function useDbFactory(ipfs) {
   const [isDbReady, setIsDbReady] = useState(Boolean(db));
   const [dbInitError, setDbInitError] = useState(null);
 
+  // const [, updateState] = useState();
+  // const forceUpdate = useMemo(() => {
+  //   return throttle(() => updateState({}), 3000, { leading: false });
+  // }, []);
+  // const forceUpdate = useMemo(() => {
+  //   return throttle(() => updateState({}), 3000, { leading: false });
+  // }, []);
   useEffect(() => {
     async function startDB() {
       if (db) {
@@ -31,6 +39,12 @@ export default function useDbFactory(ipfs) {
               write: ["*"],
             },
           });
+          // db.events.on("ready", forceUpdate);
+          // // When database gets replicated with a peer, display results
+          // db.events.on("replicated", forceUpdate);
+          // // When we update the database, display result
+          // db.events.on("write", forceUpdate);
+          // // db.events.on("replicate.progress", forceUpdate);
           await db.load();
           console.timeEnd("DB Started");
         } catch (error) {

@@ -1,16 +1,61 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import debounce from "lodash/debounce";
 import useIpfsFactory from "../hooks/use-ipfs-factory.js";
 import useDbFactory from "../hooks/use-db-factory.js";
 import useIpfs from "../hooks/use-ipfs.js";
+import useDB from "../hooks/use-db.js";
 // import logo from "./ipfs-logo.svg";
 
 const IPFS = () => {
   const { ipfs, ipfsInitError } = useIpfsFactory();
   const { db } = useDbFactory(ipfs);
   const id = useIpfs(ipfs, "id");
+  const [post, setPost] = useState([]);
+
+  const onChange = useMemo(
+    () =>
+      debounce((e) => {
+        if (!db) return;
+        console.log("🚀 onChange");
+        db.put({
+          _id: "post1",
+          text: e.target.innerHTML,
+        });
+      }, 3000),
+    [db]
+  );
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!db) return;
+      setPost(db.get("post1"));
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [db]);
+  console.log("render");
+  // useEffect(() => {
+  //   if (!db) return;
+  //   // db.put({
+  //   //   _id: "post1",
+  //   //   text: "测试",
+  //   // });
+  //   const res = db.get("post1");
+  //   console.log("🚀 ~ file: ipfs.js ~ line 21 ~ useEffect ~ res", res);
+  // }, [db]);
+  // const post = useDB(db, "put", {
+  //   _id: "post1",
+  //   text: "测试",
+  // });
+  // console.log("🚀 ~ file: ipfs.js ~ line 13 ~ IPFS ~ post", post);
+  // ipfs.id
   return (
     <div className="sans-serif">
-      <header className="flex items-center pa3 bg-navy bb bw3 b--aqua">
+      <div contentEditable suppressContentEditableWarning onInput={onChange}>
+        {post.length ? post[0].text : null}
+      </div>
+      {/* <header className="flex items-center pa3 bg-navy bb bw3 b--aqua">
         <h1 className="flex-auto ma0 tr f3 fw2 montserrat aqua">IPFS React</h1>
       </header>
       <main>
@@ -20,7 +65,7 @@ const IPFS = () => {
           </div>
         )}
         {id && <IpfsId {...id} />}
-      </main>
+      </main> */}
     </div>
   );
 };
